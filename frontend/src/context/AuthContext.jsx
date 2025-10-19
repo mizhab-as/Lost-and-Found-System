@@ -23,14 +23,19 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (credentials) => {
-    const response = await loginAdmin(credentials);
-    const { token } = response;
-    
-    localStorage.setItem('authToken', token);
-    setToken(token);
-    setIsAuthenticated(true);
-    
-    return response;
+    try {
+      const response = await loginAdmin(credentials);
+      const { token } = response;
+      if (token) {
+        localStorage.setItem('authToken', token);
+        setToken(token);
+        setIsAuthenticated(true);
+        return response;
+      }
+      throw new Error('No token received');
+    } catch (error) {
+      throw error;
+    }
   };
 
   const logout = () => {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ItemCard from './ItemCard';
 import ClaimForm from './ClaimForm';
 
-function ItemList({ items, onItemUpdated }) {
+function ItemList({ items, onItemUpdated, loading }) {
   const [selectedItem, setSelectedItem] = useState(null);
   const [showClaimForm, setShowClaimForm] = useState(false);
 
@@ -15,6 +15,10 @@ function ItemList({ items, onItemUpdated }) {
     setShowClaimForm(false);
     onItemUpdated();
   };
+
+  if (loading) {
+    return <div className="animate-pulse">Loading items...</div>;
+  }
 
   if (items.length === 0) {
     return (

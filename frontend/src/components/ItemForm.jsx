@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createItem } from '../api/itemsApi';
+import { formatDate } from '../utils/dateUtils';
 
 function ItemForm({ onClose, onItemAdded }) {
   const [formData, setFormData] = useState({
@@ -29,15 +30,32 @@ function ItemForm({ onClose, onItemAdded }) {
     setError(null);
     
     try {
-      await createItem(formData);
+      if (!formData.status) {
+        throw new Error('Please select whether the item is Lost or Found');
+      }
+      
+      await createItem({
+        ...formData,
+        date: new Date(formData.date).toISOString()
+      });
       onItemAdded();
-    } catch (err) {
-      setError(err.message || 'Failed to submit item');
-    } finally {
+      onClose();
+    } catch (error) {
+      setError(error.message);
       setIsSubmitting(false);
     }
   };
 
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 'Lost': return 'status-badge status-lost';
+      case 'Found': return 'status-badge status-found';
+      case 'Pending': return 'status-badge status-pending';
+      case 'Returned': return 'status-badge status-returned';
+      default: return 'status-badge';
+    }
+  };
+  
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -214,6 +232,39 @@ function ItemForm({ onClose, onItemAdded }) {
           </button>
         </div>
       </form>
+      
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Reported Item Details
+        </h3>
+        
+        <div className="bg-gray-100 p-4 rounded-md shadow-md">
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-gray-500">Item Name:</span>
+            <span className="text-gray-700 font-medium">{formData.name}</span>
+          </div>
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-gray-500">Description:</span>
+            <span className="text-gray-700 font-medium">{formData.description}</span>
+          </div>
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-gray-500">Category:</span>
+            <span className="text-gray-700 font-medium">{formData.category}</span>
+          </div>
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-gray-500">Location:</span>
+            <span className="text-gray-700 font-medium">{formData.location}</span>
+          </div>
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-gray-500">Date:</span>
+            <span className="text-gray-700 font-medium">{formatDate(formData.date)}</span>
+          </div>
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-gray-500">Reporter:</span>
+            <span className="text-gray-700 font-medium">{formData.reporterName}</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
