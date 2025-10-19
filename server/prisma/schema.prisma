@@ -15,7 +15,6 @@ model Admin {
   id        Int      @id @default(autoincrement())
   username  String   @unique
   password  String
-  createdAt DateTime @default(now())
 }
 
 // Model for all items, both Lost and Found
@@ -25,28 +24,23 @@ model Item {
   description     String
   category        String
   location        String
-  imageUrl        String?
-  status          String
-  reporterName    String   // Name of the person who reported the item
-  reporterContact String   // Contact info of the reporter
-  createdAt       DateTime @default(now())
-
-  // For Return History
-  senderName      String? // This will be the finder's name
-  recipientName   String? // This will be the loser's name
-
-  // Relation to claims
-  claims Claim[]
+  status          String   // "Lost", "Found", "Pending", "Returned"
+  date            DateTime @default(now())
+  reporterName    String
+  reporterContact String
+  returnDate      DateTime?
+  claims          Claim[]
 }
 
 // Model for claims made on Found items
 model Claim {
   id                Int      @id @default(autoincrement())
-  proofOfOwnership  String
+  itemId            Int
   claimerName       String   // Name of the person claiming the item
   claimerContact    String   // Contact info of the claimer
-  createdAt         DateTime @default(now())
+  proofOfOwnership  String
+  status             String   // "Pending", "Approved", "Rejected"
+  date             DateTime @default(now())
 
   item   Item @relation(fields: [itemId], references: [id])
-  itemId Int
 }
