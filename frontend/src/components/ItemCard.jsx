@@ -1,55 +1,27 @@
 import React from 'react';
-import { formatDate } from '../utils/dateUtils';
 
-function ItemCard({ item, onClaim }) {
-  const getStatusClass = (status) => {
-    switch (status) {
-      case 'Lost': return 'status-badge status-lost';
-      case 'Found': return 'status-badge status-found';
-      case 'Pending': return 'status-badge status-pending';
-      case 'Returned': return 'status-badge status-returned';
-      default: return 'status-badge';
-    }
-  };
-  
+const ItemCard = ({ title, items = [] }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="p-5">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-semibold text-gray-800 truncate">{item.name}</h3>
-          <span className={getStatusClass(item.status)}>
-            {item.status}
-          </span>
-        </div>
-        
-        <p className="text-gray-600 mb-4 line-clamp-2">{item.description}</p>
-        
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Category:</span>
-            <span className="text-gray-700 font-medium">{item.category}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Location:</span>
-            <span className="text-gray-700 font-medium">{item.location}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Date:</span>
-            <span className="text-gray-700 font-medium">{formatDate(item.date)}</span>
-          </div>
-        </div>
-        
-        {item.status === 'Found' && (
-          <button
-            onClick={() => onClaim(item)}
-            className="mt-4 w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-          >
-            Claim This Item
-          </button>
-        )}
-      </div>
+    <div className="bg-white rounded shadow p-4">
+      <h3 className="text-xl font-semibold mb-3">{title} <span className="text-sm text-gray-500">({items.length})</span></h3>
+
+      {items.length === 0 ? (
+        <div className="text-sm text-gray-500">No items</div>
+      ) : (
+        <ul className="space-y-3">
+          {items.map(item => (
+            <li key={item.id} className="border rounded p-3">
+              <div className="font-medium">{item.description || 'No description'}</div>
+              <div className="text-sm text-gray-600">Place: {item.location || '—'}</div>
+              <div className="text-sm text-gray-600">Date: {item.date ? new Date(item.date).toLocaleDateString() : '—'}</div>
+              <div className="text-sm text-gray-600">Name: {item.reporterName || item.name || '—'}</div>
+              <div className="text-sm text-gray-600">Contact: {item.reporterContact || item.contact || '—'}</div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
-}
+};
 
 export default ItemCard;

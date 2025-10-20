@@ -2,27 +2,21 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Create axios instance
 const api = axios.create({
   baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  // do not set Content-Type when sending FormData from caller
+  headers: { 'Content-Type': 'application/json' }
 });
 
-// Add auth token to requests when available
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('authToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+export const setAuthToken = (token) => {
+  if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  else delete api.defaults.headers.common['Authorization'];
+};
 
-export const fetchItems = async (params) => {
+export const fetchItems = async (params = {}) => {
   try {
-    const response = await api.get('/items', { params });
-    return response.data;
+    const res = await api.get('/items', { params });
+    return res.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || 'Failed to fetch items');
   }
@@ -30,8 +24,14 @@ export const fetchItems = async (params) => {
 
 export const createItem = async (itemData) => {
   try {
-    const response = await api.post('/items', itemData);
-    return response.data;
+    const res = await api.post('/items', {
+      ...itemData,
+      // Make sure these fields match what the server expects
+      name: itemData.description, // Server uses 'name' field
+      itemName: itemData.description,
+      status: itemData.status || 'reported'
+    });
+    return res.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || 'Failed to create item');
   }
@@ -39,8 +39,8 @@ export const createItem = async (itemData) => {
 
 export const updateItemStatus = async (itemId, status) => {
   try {
-    const response = await api.put(`/items/${itemId}/status`, { status });
-    return response.data;
+    const res = await api.patch(`/items/${itemId}/status`, { status });
+    return res.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || 'Failed to update item status');
   }
@@ -48,8 +48,8 @@ export const updateItemStatus = async (itemId, status) => {
 
 export const submitClaim = async (itemId, claimData) => {
   try {
-    const response = await api.post(`/items/${itemId}/claim`, claimData);
-    return response.data;
+    const res = await api.post(`/items/${itemId}/claims`, claimData);
+    return res.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || 'Failed to submit claim');
   }
@@ -57,8 +57,8 @@ export const submitClaim = async (itemId, claimData) => {
 
 export const approveItemClaim = async (itemId, claimId) => {
   try {
-    const response = await api.put(`/items/${itemId}/approve`, { claimId });
-    return response.data;
+    const res = await api.post(`/items/${itemId}/claims/${claimId}/approve`);
+    return res.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || 'Failed to approve claim');
   }

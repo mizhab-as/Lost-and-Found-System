@@ -1,40 +1,56 @@
 import React from 'react';
+import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
 function Header({ viewMode, setViewMode }) {
+  const { theme, toggleTheme } = useTheme();
   const { isAuthenticated, logout } = useAuth();
+  const isDark = theme === 'dark';
 
   return (
-    <header className="bg-blue-800 text-white shadow-md">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold">Lost & Found System</h1>
-        </div>
+    <header className={`${isDark ? 'bg-gray-800 text-white' : 'bg-blue-600 text-white'} shadow-lg`}>
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Lost & Found System</h1>
         
         <div className="flex items-center space-x-4">
-          <div className="bg-blue-700 rounded-md overflow-hidden">
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-lg ${
+              isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-blue-700 hover:bg-blue-600'
+            }`}
+          >
+            {isDark ? '🌞 Light' : '🌙 Dark'}
+          </button>
+
+          <div className="flex rounded-lg overflow-hidden">
             <button
               onClick={() => setViewMode('user')}
               className={`px-4 py-2 ${
-                viewMode === 'user' ? 'bg-blue-900' : ''
+                viewMode === 'user'
+                  ? isDark ? 'bg-gray-900' : 'bg-blue-700'
+                  : isDark ? 'bg-gray-700' : 'bg-blue-500'
               }`}
             >
-              User View
+              User
             </button>
             <button
               onClick={() => setViewMode('admin')}
               className={`px-4 py-2 ${
-                viewMode === 'admin' ? 'bg-blue-900' : ''
+                viewMode === 'admin'
+                  ? isDark ? 'bg-gray-900' : 'bg-blue-700'
+                  : isDark ? 'bg-gray-700' : 'bg-blue-500'
               }`}
             >
               Admin
             </button>
           </div>
-          
+
           {isAuthenticated && (
             <button
               onClick={logout}
-              className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md"
+              className={`px-4 py-2 rounded-lg ${
+                isDark ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'
+              }`}
             >
               Logout
             </button>

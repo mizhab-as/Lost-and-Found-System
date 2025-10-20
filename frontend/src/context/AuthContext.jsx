@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { loginAdmin } from '../api/adminApi';
+import { setAuthToken } from '../api/itemsApi';
 
 const AuthContext = createContext();
 
@@ -30,6 +31,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem('authToken', token);
         setToken(token);
         setIsAuthenticated(true);
+        setAuthToken(token); // add this where you store token in localStorage/state
         return response;
       }
       throw new Error('No token received');
@@ -42,6 +44,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('authToken');
     setToken(null);
     setIsAuthenticated(false);
+    setAuthToken(null); // on logout
   };
 
   const value = {

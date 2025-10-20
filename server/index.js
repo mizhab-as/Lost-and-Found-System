@@ -102,54 +102,44 @@ app.post('/api/admin/login', async (req, res) => {
 // ITEM ROUTES
 app.post('/api/items', async (req, res) => {
   try {
-    const { 
-      name, 
-      description, 
-      category, 
-      location, 
-      status, 
-      reporterName, 
-      reporterContact, 
-      date 
+    const {
+      description,
+      category,
+      location,
+      date,
+      reporterName,
+      reporterContact,
+      name: formName,
+      contact: formContact,
+      status: incomingStatus
     } = req.body;
-    
+
     const item = await prisma.item.create({
       data: {
-        name,
+        name: req.body.itemName || description || 'Unnamed item',
         description,
         category,
         location,
-        status,
-        reporterName,
-        reporterContact,
-        date: new Date(date)
+        reporterName: reporterName || formName || null,
+        reporterContact: reporterContact || formContact || null,
+        date: date ? new Date(date) : new Date(),
+        status: incomingStatus || 'reported'
       }
     });
     
     res.status(201).json(item);
   } catch (error) {
+    console.error('Error creating item:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
 app.get('/api/items', async (req, res) => {
   try {
-    const { status, category } = req.query;
-    
-    const where = {};
-    if (status) where.status = status;
-    if (category) where.category = category;
-    
     const items = await prisma.item.findMany({
-      where,
-      include: {
-        claims: true
-      },
-      orderBy: {
-        date: 'desc'
-      }
+      include: { claims: true },
+      orderBy: { date: 'desc' }
     });
-    
     res.json(items);
   } catch (error) {
     res.status(500).json({ error: error.message });
