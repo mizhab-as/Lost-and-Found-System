@@ -8,8 +8,10 @@ const bcrypt = require('bcrypt');
 const prisma = new PrismaClient();
 const app = express();
 
+const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
+
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: allowedOrigin,
   credentials: true
 }));
 app.use(express.json());
