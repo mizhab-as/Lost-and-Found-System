@@ -8,7 +8,7 @@ const api = axios.create({
     'Content-Type': 'application/json'
   }
 });
-
+ 
 // Set auth token for requests
 export const setAuthToken = (token) => {
   if (token) {
